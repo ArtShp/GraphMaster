@@ -92,8 +92,6 @@ class GraphicsScene(QGraphicsScene):
                             edge_item.setPen(self.edge_pen)
                             edge_item.setLine(edge)
 
-                            edge_item.setFlag(QGraphicsItem.ItemIsSelectable, True)
-
                             self.addItem(edge_item)
 
                     self.selected = None
