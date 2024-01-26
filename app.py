@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtCore import Qt, QSize, QRect
+from PySide6.QtCore import Qt, QSize, QRect, QLineF, QPointF
 from PySide6.QtGui import QAction
 from PySide6.QtGui import QColor, QPen, QBrush, QTransform
 from PySide6.QtWidgets import (
@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QGraphicsView,
     QGraphicsScene,
     QGraphicsEllipseItem,
-    QToolBar, QPushButton,
+    QToolBar, QPushButton, QGraphicsLineItem,
 )
 
 
@@ -17,30 +17,28 @@ class GraphicsScene(QGraphicsScene):
     def __init__(self):
         super().__init__()
         self.setSceneRect(-100, -100, 200, 200)
+
         self.selected = None
-        self.selected_offset_x = 0
-        self.selected_offset_y = 0
+        self.selected2 = None
 
         self.active_mode = None
 
         self.node_pen = QPen(QColor(0, 0, 0), 1.0, Qt.SolidLine)
-        self.node_brush = QBrush(QColor(255, 255, 255, 255))
+        self.node_brush = QBrush(QColor(255, 255, 255))
+
+        self.edge_pen = QPen(QColor(0, 0, 0), 2.0, Qt.SolidLine)
 
         self.RADIUS = 20
+        self.RADIUS_OFFSET = QPointF(self.RADIUS, self.RADIUS)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             if self.active_mode == "Cursor":
                 """Start moving node."""
-                x = event.scenePos().x()
-                y = event.scenePos().y()
-
                 if not self.selected:
                     item = self.itemAt(event.scenePos(), QTransform())
                     if item:
                         self.selected = item
-                        self.selected_offset_x = x - item.pos().x()
-                        self.selected_offset_y = y - item.pos().y()
 
             elif self.active_mode == "Add Node":
                 """Create new node."""
@@ -54,13 +52,45 @@ class GraphicsScene(QGraphicsScene):
 
                 self.addItem(node)
 
+            elif self.active_mode == "Add Edge":
+                """Create new edge."""
+                if not self.selected:
+                    item = self.itemAt(event.scenePos(), QTransform())
+                    if item:
+                        self.selected = item
+                elif not self.selected2:
+                    item = self.itemAt(event.scenePos(), QTransform())
+                    if item:
+                        self.selected2 = item
+                        edge_item = QGraphicsLineItem()
+
+                        edge = QLineF(self.selected.pos() + self.RADIUS_OFFSET,
+                                      self.selected2.pos() + self.RADIUS_OFFSET)
+                        edge_item.setPen(self.edge_pen)
+                        edge_item.setLine(edge)
+
+                        self.addItem(edge_item)
+
+                        self.selected = self.selected2 = None
+
     def mouseMoveEvent(self, event):
         if event.buttons() == Qt.LeftButton and self.active_mode == "Cursor":
             """Moving node."""
             if self.selected:
                 x = event.scenePos().x()
                 y = event.scenePos().y()
-                self.selected.setPos(x - self.selected_offset_x, y - self.selected_offset_y)
+
+                items = self.items()
+
+                for item in items:
+                    if isinstance(item, QGraphicsEllipseItem):
+                        if self.selected.pos() == item.pos():
+                            item.setPos(x - self.RADIUS, y - self.RADIUS)
+                    elif isinstance(item, QGraphicsLineItem):
+                        if item.line().p1() == self.selected.pos() + self.RADIUS_OFFSET:
+                            item.setLine(QLineF(QPointF(x, y), item.line().p2()))
+                        elif item.line().p2() == self.selected.pos() + self.RADIUS_OFFSET:
+                            item.setLine(QLineF(item.line().p1(), QPointF(x, y)))
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton and self.active_mode == "Cursor":
