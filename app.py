@@ -1,7 +1,7 @@
 import sys
 
 from PySide6.QtCore import Qt, QSize, QRect, QLineF, QPointF
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QAction, QTransform
 from PySide6.QtGui import QColor, QPen, QBrush
 from PySide6.QtWidgets import (
     QApplication,
@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QGraphicsView,
     QGraphicsScene,
     QGraphicsEllipseItem,
-    QToolBar, QPushButton, QGraphicsLineItem,
+    QToolBar, QPushButton, QGraphicsLineItem, QGraphicsItem, QGraphicsPolygonItem,
 )
 
 
@@ -22,12 +22,12 @@ class GraphicsScene(QGraphicsScene):
 
         self.active_mode = None
 
-        self.node_pen = QPen(QColor(0, 0, 0), 1.0, Qt.SolidLine)
+        self.node_pen = QPen(QColor(0, 0, 0), 1.5, Qt.SolidLine)
         self.node_brush = QBrush(QColor(255, 255, 255))
 
-        self.edge_pen = QPen(QColor(0, 0, 0), 1.5, Qt.SolidLine)
+        self.edge_pen = QPen(QColor(0, 0, 0), 3.0, Qt.SolidLine)
 
-        self.RADIUS = 20
+        self.RADIUS = 25
         self.RADIUS_OFFSET = QPointF(self.RADIUS, self.RADIUS)
 
     def get_node_item(self, pos):
@@ -37,6 +37,13 @@ class GraphicsScene(QGraphicsScene):
                 if (center.x() - pos.x())**2 + (center.y() - pos.y())**2 <= self.RADIUS**2:
                     return item
         return None
+
+    def get_any_item(self, pos):
+        item = self.get_node_item(pos)
+        if item:
+            return item
+        else:
+            return self.itemAt(pos, QTransform())
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -85,9 +92,28 @@ class GraphicsScene(QGraphicsScene):
                             edge_item.setPen(self.edge_pen)
                             edge_item.setLine(edge)
 
+                            edge_item.setFlag(QGraphicsItem.ItemIsSelectable, True)
+
                             self.addItem(edge_item)
 
                     self.selected = None
+
+            elif self.active_mode == "Delete":
+                "Delete node/edge."
+                selected = self.get_any_item(event.scenePos())
+                if selected:
+                    if isinstance(selected, QGraphicsEllipseItem):
+                        i = 0
+                        while i < len(self.items()):
+                            if isinstance(self.items()[i], QGraphicsLineItem):
+                                if ((selected.pos() + self.RADIUS_OFFSET) in
+                                   [self.items()[i].line().p1(), self.items()[i].line().p2()]):
+                                    self.removeItem(self.items()[i])
+                                    i -= 1
+                            i += 1
+                        self.removeItem(selected)
+                    elif isinstance(selected, QGraphicsLineItem):
+                        self.removeItem(selected)
 
     def mouseMoveEvent(self, event):
         if event.buttons() == Qt.LeftButton and self.active_mode == "Cursor":
