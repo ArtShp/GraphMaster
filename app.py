@@ -2,7 +2,7 @@ import sys
 
 from PySide6.QtCore import Qt, QSize, QRect, QLineF, QPointF
 from PySide6.QtGui import QAction
-from PySide6.QtGui import QColor, QPen, QBrush, QTransform
+from PySide6.QtGui import QColor, QPen, QBrush
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -19,7 +19,6 @@ class GraphicsScene(QGraphicsScene):
         self.setSceneRect(-100, -100, 200, 200)
 
         self.selected = None
-        self.selected2 = None
 
         self.active_mode = None
 
@@ -63,27 +62,32 @@ class GraphicsScene(QGraphicsScene):
             elif self.active_mode == "Add Edge":
                 """Create new edge."""
                 if not self.selected:
-                    item = self.itemAt(event.scenePos(), QTransform())
-                    if isinstance(item, QGraphicsEllipseItem):
+                    item = self.get_node_item(event.scenePos())
+                    if item:
                         self.selected = item
-                    else:
-                        self.selected = None
-                elif not self.selected2:
-                    item = self.itemAt(event.scenePos(), QTransform())
-                    if isinstance(item, QGraphicsEllipseItem) and item != self.selected:
-                        self.selected2 = item
+                else:
+                    item = self.get_node_item(event.scenePos())
+                    if item and item != self.selected:
                         edge_item = QGraphicsLineItem()
 
                         edge = QLineF(self.selected.pos() + self.RADIUS_OFFSET,
-                                      self.selected2.pos() + self.RADIUS_OFFSET)
-                        edge_item.setPen(self.edge_pen)
-                        edge_item.setLine(edge)
+                                      item.pos() + self.RADIUS_OFFSET)
 
-                        self.addItem(edge_item)
+                        edge_already_exists = False
+                        for item in self.items():
+                            if isinstance(item, QGraphicsLineItem):
+                                if item.line() == edge or \
+                                   (item.line().p1() == edge.p2() and item.line().p2() == edge.p1()):
+                                    edge_already_exists = True
+                                    break
 
-                        print(self.items())
+                        if not edge_already_exists:
+                            edge_item.setPen(self.edge_pen)
+                            edge_item.setLine(edge)
 
-                    self.selected = self.selected2 = None
+                            self.addItem(edge_item)
+
+                    self.selected = None
 
     def mouseMoveEvent(self, event):
         if event.buttons() == Qt.LeftButton and self.active_mode == "Cursor":
@@ -92,9 +96,7 @@ class GraphicsScene(QGraphicsScene):
                 x = event.scenePos().x()
                 y = event.scenePos().y()
 
-                items = self.items()
-
-                for item in items:
+                for item in self.items():
                     if isinstance(item, QGraphicsEllipseItem):
                         if self.selected.pos() == item.pos():
                             item.setPos(x - self.RADIUS, y - self.RADIUS)
