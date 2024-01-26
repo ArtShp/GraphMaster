@@ -1,7 +1,8 @@
+import ctypes
 import sys
 
 from PySide6.QtCore import Qt, QSize, QRect, QLineF, QPointF
-from PySide6.QtGui import QAction, QTransform
+from PySide6.QtGui import QAction, QTransform, QIcon
 from PySide6.QtGui import QColor, QPen, QBrush
 from PySide6.QtWidgets import (
     QApplication,
@@ -9,7 +10,7 @@ from PySide6.QtWidgets import (
     QGraphicsView,
     QGraphicsScene,
     QGraphicsEllipseItem,
-    QToolBar, QPushButton, QGraphicsLineItem, QGraphicsItem, QGraphicsPolygonItem,
+    QToolBar, QPushButton, QGraphicsLineItem,
 )
 
 
@@ -170,6 +171,8 @@ class MainWindow(QMainWindow):
         self.setGeometry(window_geometry)
         self.setWindowTitle("Graph Master")
 
+        self.setWindowIcon(QIcon("img/icon.png"))
+
         self.view = GraphicsView()
         self.setCentralWidget(self.view)
 
@@ -224,5 +227,6 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("graphmasterapp")
     window = MainWindow()
     sys.exit(app.exec())
