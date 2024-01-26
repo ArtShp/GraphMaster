@@ -1,6 +1,4 @@
-from PySide6.QtWidgets import (
-    QGraphicsView,
-)
+from PySide6.QtWidgets import QGraphicsView
 
 from src.scene import GraphicsScene
 
