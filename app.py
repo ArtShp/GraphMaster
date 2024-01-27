@@ -1,3 +1,9 @@
+"""
+Project: Graph Master
+Author: Artemiy Shipovalov
+Created on: January 2024
+"""
+
 import ctypes
 import sys
 
