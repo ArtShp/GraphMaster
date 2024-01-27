@@ -10,3 +10,6 @@ class QEdge(QGraphicsLineItem):
 
     def add_nodes(self, node1: QNode, node2: QNode):
         self.nodes = [node1, node2]
+
+    def get_nodes(self):
+        return self.nodes
