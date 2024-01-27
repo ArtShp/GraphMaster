@@ -4,6 +4,7 @@ from src.q_node import QNode
 
 
 class QEdge(QGraphicsLineItem):
+    """Graph edge class."""
     _id = 0
 
     def __init__(self, node1: QNode = None, node2: QNode = None,

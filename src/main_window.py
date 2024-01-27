@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 from PySide6.QtCore import Qt, QSize, QRect
@@ -11,6 +10,7 @@ from src.view import GraphicsView
 
 
 class MainWindow(QMainWindow):
+    """Main window class."""
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -38,12 +38,11 @@ class MainWindow(QMainWindow):
 
         self.setWindowIcon(QIcon("img/icon.png"))
 
-        self.view = GraphicsView()
+        self.view = GraphicsView()  # where graph is shown
         self.setCentralWidget(self.view)
 
     def create_actions(self):
         """Create the application's menu actions."""
-        # Create actions for File menu
         self.quit_act = QAction("&Quit")
         self.quit_act.setShortcut("Ctrl+Q")
         self.quit_act.triggered.connect(self.close)
@@ -59,7 +58,7 @@ class MainWindow(QMainWindow):
     def create_menu(self):
         """Create the application's menu bar."""
         self.menuBar().setNativeMenuBar(False)
-        # Create file menu and add actions
+
         file_menu = self.menuBar().addMenu("File")
         file_menu.addAction(self.quit_act)
         file_menu.addAction(self.import_act)

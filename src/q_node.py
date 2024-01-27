@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QGraphicsEllipseItem
 
 
 class QNode(QGraphicsEllipseItem):
+    """Graph node class."""
     _id = 0
 
     def __init__(self, x: int, y: int, r: int = 25, name: str = "", id: int | None = None):

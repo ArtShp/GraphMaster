@@ -7,7 +7,7 @@ from src.main_window import MainWindow
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("graphmasterapp")
-    window = MainWindow()
-    sys.exit(app.exec())
+    app = QApplication(sys.argv)  # create app
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("graphmasterapp")  # to show app icon in taskbar
+    window = MainWindow()  # create main window
+    sys.exit(app.exec())  # start app

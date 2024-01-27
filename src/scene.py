@@ -10,11 +10,12 @@ from src.q_node import QNode
 
 
 class GraphicsScene(QGraphicsScene):
+    """Graphics scene class."""
     def __init__(self):
         super().__init__()
         self.setSceneRect(-100, -100, 200, 200)
 
-        self.selected = None
+        self.selected = None  # selected button (mode)
 
         self.active_mode = GraphicsMode.NONE
 
@@ -52,6 +53,7 @@ class GraphicsScene(QGraphicsScene):
         for item in self.items():
             if isinstance(item, QNode):
                 center = item.center()
+                # check if click is inside a node
                 if (center.x() - pos.x())**2 + (center.y() - pos.y())**2 <= item.radius**2:
                     return item
         return None
@@ -85,8 +87,10 @@ class GraphicsScene(QGraphicsScene):
         else:
             node = self.get_node_item(pos)
             if node and node != self.selected:
+                # 2 nodes are selected
                 edge = QLineF(self.selected.center(), node.center())
 
+                # check if edge is already exists
                 edge_already_exists = False
                 for item in self.items():
                     if isinstance(item, QEdge):
@@ -107,6 +111,7 @@ class GraphicsScene(QGraphicsScene):
         selected = self.get_any_item(pos)
         if selected:
             if isinstance(selected, QNode):
+                # delete all incidental edges and than delete selected node
                 i = 0
                 while i < len(self.items()):
                     if isinstance(self.items()[i], QEdge):
@@ -118,6 +123,7 @@ class GraphicsScene(QGraphicsScene):
                 self.removeItem(selected)
                 self.graph.delete_node(selected)
             elif isinstance(selected, QEdge):
+                # delete selected edge
                 self.removeItem(selected)
                 self.graph.delete_edge(selected)
 
@@ -126,6 +132,7 @@ class GraphicsScene(QGraphicsScene):
         if self.selected:
             x, y = pos.x(), pos.y()
             for item in self.items():
+                # move node and incidental edges
                 if isinstance(item, QNode):
                     if self.selected.center() == item.center():
                         item.set_center(x, y)
@@ -146,19 +153,21 @@ class GraphicsScene(QGraphicsScene):
         self.graph.clear()
 
     def draw_node(self, node: QNode):
+        """Draw node on the scene."""
         node.setPen(self.node_pen)
         node.setBrush(self.node_brush)
         node.setZValue(1000)
         self.addItem(node)
 
     def draw_edge(self, edge: QEdge, line: QLineF):
+        """Draw edge on the scene."""
         edge.setPen(self.edge_pen)
         edge.setLine(line)
         edge.setZValue(0)
         self.addItem(edge)
 
     def draw_graph(self):
-        """Draw graph that was imported."""
+        """Draw graph that was imported on the scene."""
         self.clear()
         for node in self.graph.nodes:
             self.draw_node(node)
