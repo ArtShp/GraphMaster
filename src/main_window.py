@@ -55,7 +55,6 @@ class MainWindow(QMainWindow):
         self.toolbar = QToolBar("Modes", self)
 
         self.buttons = [QPushButton(text="Cursor"),
-                        QPushButton(text="Hand"),
                         QPushButton(text="Add Node"),
                         QPushButton(text="Add Edge"),
                         QPushButton(text="Delete"),
