@@ -49,8 +49,8 @@ The "**File**" menu contains the following buttons:
 {
 	"content_type": "Graph",
 	"type_version": "version",
-	"nodes": ["node_1", "node_2", ..., "node_n"],
-	"edges": ["edge_1", "edge_2", ..., "edge_m"]
+	"nodes": ["node_1", "node_2", "...", "node_n"],
+	"edges": ["edge_1", "edge_2", "...", "edge_m"]
 }
 ```
 Description:
