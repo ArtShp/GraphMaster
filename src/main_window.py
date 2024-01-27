@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt, QSize, QRect
 from PySide6.QtGui import QAction, QIcon
-from PySide6.QtWidgets import QMainWindow, QToolBar, QPushButton
+from PySide6.QtWidgets import QMainWindow, QToolBar, QPushButton, QMessageBox
 
 from src.view import GraphicsView
 
@@ -58,13 +58,18 @@ class MainWindow(QMainWindow):
                         QPushButton(text="Hand"),
                         QPushButton(text="Add Node"),
                         QPushButton(text="Add Edge"),
-                        QPushButton(text="Delete")]
+                        QPushButton(text="Delete"),
+                        QPushButton(text="Clear Graph")]
 
         for button in self.buttons:
             button.setFixedSize(QSize(100, 50))
-            button.setCheckable(True)
-            button.clicked.connect(self.change_mode)
             self.toolbar.addWidget(button)
+
+        for i in range(len(self.buttons) - 1):
+            self.buttons[i].setCheckable(True)
+            self.buttons[i].clicked.connect(self.change_mode)
+
+        self.buttons[-1].clicked.connect(self.clear_graph)
 
         self.last_button = self.buttons[0]
         self.active_mode = self.buttons[0].text()
@@ -83,3 +88,12 @@ class MainWindow(QMainWindow):
         for button in self.buttons:
             if self.last_button != button:
                 button.setChecked(False)
+
+    def clear_graph(self):
+        """Event handler for clearing the graph."""
+        button = QMessageBox.warning(self, self.windowTitle(), "Are you sure you want to clear the graph?",
+                                     buttons=QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                     defaultButton=QMessageBox.StandardButton.No)
+
+        if button == QMessageBox.StandardButton.Yes:
+            self.view.scene.clear_graph()

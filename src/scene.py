@@ -21,21 +21,6 @@ class GraphicsScene(QGraphicsScene):
 
         self.edge_pen = QPen(QColor(0, 0, 0), 3.0, Qt.SolidLine)
 
-    def get_node_item(self, pos: QPointF) -> QNode | None:
-        for item in self.items():
-            if isinstance(item, QNode):
-                center = item.center()
-                if (center.x() - pos.x())**2 + (center.y() - pos.y())**2 <= item.radius**2:
-                    return item
-        return None
-
-    def get_any_item(self, pos: QPointF) -> QNode | QEdge | None:
-        item = self.get_node_item(pos)
-        if item:
-            return item
-        else:
-            return self.itemAt(pos, QTransform())
-
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             if self.active_mode == "Cursor":
@@ -54,6 +39,21 @@ class GraphicsScene(QGraphicsScene):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton and self.active_mode == "Cursor":
             self.finish_moving_node()
+
+    def get_node_item(self, pos: QPointF) -> QNode | None:
+        for item in self.items():
+            if isinstance(item, QNode):
+                center = item.center()
+                if (center.x() - pos.x())**2 + (center.y() - pos.y())**2 <= item.radius**2:
+                    return item
+        return None
+
+    def get_any_item(self, pos: QPointF) -> QNode | QEdge | None:
+        item = self.get_node_item(pos)
+        if item:
+            return item
+        else:
+            return self.itemAt(pos, QTransform())
 
     def select_node(self, pos: QPointF):
         """Start moving node."""
@@ -140,3 +140,7 @@ class GraphicsScene(QGraphicsScene):
         """Stop moving node."""
         if self.selected:
             self.selected = None
+
+    def clear_graph(self):
+        """Clear graph."""
+        self.clear()
