@@ -3,6 +3,7 @@ from PySide6.QtGui import QColor, QPen, QBrush
 from PySide6.QtGui import QTransform
 from PySide6.QtWidgets import QGraphicsScene
 
+from src.graph import Graph
 from src.graphics_mode import GraphicsMode
 from src.q_edge import QEdge
 from src.q_node import QNode
@@ -21,6 +22,8 @@ class GraphicsScene(QGraphicsScene):
         self.node_brush = QBrush(QColor(255, 255, 255))
 
         self.edge_pen = QPen(QColor(0, 0, 0), 3.0, Qt.SolidLine)
+
+        self.graph = Graph()
 
     def change_mode(self, mode: GraphicsMode):
         self.active_mode = mode
@@ -70,13 +73,8 @@ class GraphicsScene(QGraphicsScene):
     def add_node(self, pos: QPointF):
         """Create new node."""
         node = QNode(pos.x(), pos.y())
-
-        node.setPen(self.node_pen)
-        node.setBrush(self.node_brush)
-
-        node.setZValue(1000)
-
-        self.addItem(node)
+        self.draw_node(node)
+        self.graph.add_node(node)
 
     def add_edge(self, pos: QPointF):
         """Create new edge."""
@@ -87,7 +85,6 @@ class GraphicsScene(QGraphicsScene):
         else:
             node = self.get_node_item(pos)
             if node and node != self.selected:
-                edge_item = QEdge()
                 edge = QLineF(self.selected.center(), node.center())
 
                 edge_already_exists = False
@@ -99,14 +96,9 @@ class GraphicsScene(QGraphicsScene):
                             break
 
                 if not edge_already_exists:
-                    edge_item.setPen(self.edge_pen)
-                    edge_item.setLine(edge)
-
-                    edge_item.add_nodes(self.selected, node)
-
-                    edge_item.setZValue(0)
-
-                    self.addItem(edge_item)
+                    edge_item = QEdge(self.selected, node)
+                    self.draw_edge(edge_item, edge)
+                    self.graph.add_edge(edge_item)
 
             self.selected = None
 
@@ -124,8 +116,10 @@ class GraphicsScene(QGraphicsScene):
                             i -= 1
                     i += 1
                 self.removeItem(selected)
+                self.graph.delete_node(selected)
             elif isinstance(selected, QEdge):
                 self.removeItem(selected)
+                self.graph.delete_edge(selected)
 
     def move_node(self, pos: QPointF):
         """Moving node."""
@@ -149,3 +143,29 @@ class GraphicsScene(QGraphicsScene):
     def clear_graph(self):
         """Clear graph."""
         self.clear()
+        self.graph.clear()
+
+    def draw_node(self, node: QNode):
+        node.setPen(self.node_pen)
+        node.setBrush(self.node_brush)
+        node.setZValue(1000)
+        self.addItem(node)
+
+    def draw_edge(self, edge: QEdge, line: QLineF):
+        edge.setPen(self.edge_pen)
+        edge.setLine(line)
+        edge.setZValue(0)
+        self.addItem(edge)
+
+    def draw_graph(self):
+        """Draw graph that was imported."""
+        self.clear()
+        for node in self.graph.nodes:
+            self.draw_node(node)
+        if self.graph.nodes:
+            QNode._id = self.graph.nodes[-1].id + 1
+
+        for edge in self.graph.edges:
+            self.draw_edge(edge, QLineF(edge.nodes[0].center(), edge.nodes[1].center()))
+        if self.graph.edges:
+            QEdge._id = self.graph.edges[-1].id + 1

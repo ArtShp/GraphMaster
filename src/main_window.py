@@ -1,6 +1,9 @@
+import json
+from pathlib import Path
+
 from PySide6.QtCore import Qt, QSize, QRect
 from PySide6.QtGui import QAction, QIcon
-from PySide6.QtWidgets import QMainWindow, QToolBar, QPushButton, QMessageBox
+from PySide6.QtWidgets import QMainWindow, QToolBar, QPushButton, QMessageBox, QFileDialog
 
 from src.graphics_mode import GraphicsMode
 from src.q_button import QButton
@@ -45,12 +48,22 @@ class MainWindow(QMainWindow):
         self.quit_act.setShortcut("Ctrl+Q")
         self.quit_act.triggered.connect(self.close)
 
+        self.import_act = QAction("&Import")
+        self.import_act.setShortcut("Ctrl+I")
+        self.import_act.triggered.connect(self.import_graph)
+
+        self.export_act = QAction("&Export")
+        self.export_act.setShortcut("Ctrl+E")
+        self.export_act.triggered.connect(self.export_graph)
+
     def create_menu(self):
         """Create the application's menu bar."""
         self.menuBar().setNativeMenuBar(False)
         # Create file menu and add actions
         file_menu = self.menuBar().addMenu("File")
         file_menu.addAction(self.quit_act)
+        file_menu.addAction(self.import_act)
+        file_menu.addAction(self.export_act)
 
     def create_toolbar(self):
         """Create the application's toolbar."""
@@ -94,3 +107,32 @@ class MainWindow(QMainWindow):
 
         if button == QMessageBox.StandardButton.Yes:
             self.view.scene.clear_graph()
+
+    def export_graph(self):
+        """Event handler for exporting the graph to json file."""
+        data = self.view.scene.graph.to_json()
+        filename, ok = QFileDialog.getSaveFileName(
+            self,
+            "Save as",
+            "data.txt",
+            "Graph JSON (*.txt)"
+        )
+        if filename:
+            path = Path(filename)
+            with open(path, "w") as file:
+                file.write(data)
+
+    def import_graph(self):
+        """Event handler for importing the graph from json file."""
+        filename, ok = QFileDialog.getOpenFileName(
+            self,
+            "Select a file",
+            filter="Graph JSON (*.txt)"
+        )
+        if filename:
+            path = Path(filename)
+            with open(path, "r") as file:
+                data = file.read()
+
+            self.view.scene.graph.from_json(data)
+            self.view.scene.draw_graph()
