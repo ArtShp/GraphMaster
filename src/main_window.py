@@ -134,5 +134,6 @@ class MainWindow(QMainWindow):
             with open(path, "r") as file:
                 data = file.read()
 
-            self.view.scene.graph.from_json(data)
-            self.view.scene.draw_graph()
+            ok = self.view.scene.graph.from_json(data)
+            if ok:
+                self.view.scene.draw_graph()

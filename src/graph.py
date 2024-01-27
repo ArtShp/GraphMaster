@@ -72,22 +72,50 @@ class Graph:
 
     def to_json(self) -> str:
         res = {
+            "content_type": "Graph",
+            "type_version": "1.0",
             "nodes": [],
             "edges": []
         }
         for node in self.nodes:
-            res["nodes"].append([node.id, node.center().x(), node.center().y(), node.radius, node.name])
+            res["nodes"].append(
+                {
+                    "id": node.id,
+                    "x": node.center().x(),
+                    "y": node.center().y(),
+                    "r": node.radius,
+                    "name": node.name
+                }
+            )
 
         for edge in self.edges:
-            res["edges"].append([edge.id, edge.nodes[0].id, edge.nodes[1].id, edge.weight, edge.direction])
+            res["edges"].append(
+                {
+                    "id": edge.id,
+                    "id_node_1": edge.nodes[0].id,
+                    "id_node_2": edge.nodes[1].id,
+                    "w": edge.weight,
+                    "d": edge.direction
+                }
+            )
 
         return json.dumps(res)
 
-    def from_json(self, data: str):
-        self.clear()
-        res = json.loads(data)
-        for node in res["nodes"]:
-            self.add_node(QNode(node[1], node[2], node[3], node[4], node[0]))
-        for edge in res["edges"]:
-            self.add_edge(QEdge(self.get_node_id(edge[1]), self.get_node_id(edge[2]),
-                                edge[3], edge[4], edge[0]))
+    def from_json(self, data: str) -> bool:
+        try:
+            res = json.loads(data)
+            if res["content_type"] != "Graph":
+                return False
+            if res["type_version"] != "1.0":
+                return False
+
+            self.clear()
+            for node in res["nodes"]:
+                self.add_node(QNode(node["x"], node["y"], node["r"], node["name"], node["id"]))
+            for edge in res["edges"]:
+                self.add_edge(QEdge(self.get_node_id(edge["id_node_1"]),
+                                    self.get_node_id(edge["id_node_2"]),
+                                    edge["w"], edge["d"], edge["id"]))
+            return True
+        except:
+            return False
