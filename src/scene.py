@@ -3,6 +3,7 @@ from PySide6.QtGui import QColor, QPen, QBrush
 from PySide6.QtGui import QTransform
 from PySide6.QtWidgets import QGraphicsScene
 
+from src.graphics_mode import GraphicsMode
 from src.q_edge import QEdge
 from src.q_node import QNode
 
@@ -14,30 +15,34 @@ class GraphicsScene(QGraphicsScene):
 
         self.selected = None
 
-        self.active_mode = None
+        self.active_mode = GraphicsMode.NONE
 
         self.node_pen = QPen(QColor(0, 0, 0), 1.5, Qt.SolidLine)
         self.node_brush = QBrush(QColor(255, 255, 255))
 
         self.edge_pen = QPen(QColor(0, 0, 0), 3.0, Qt.SolidLine)
 
+    def change_mode(self, mode: GraphicsMode):
+        self.active_mode = mode
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            if self.active_mode == "Cursor":
-                self.select_node(event.scenePos())
-            elif self.active_mode == "Add Node":
-                self.add_node(event.scenePos())
-            elif self.active_mode == "Add Edge":
-                self.add_edge(event.scenePos())
-            elif self.active_mode == "Delete":
-                self.delete_item(event.scenePos())
+            match self.active_mode:
+                case GraphicsMode.CURSOR:
+                    self.select_node(event.scenePos())
+                case GraphicsMode.ADD_NODE:
+                    self.add_node(event.scenePos())
+                case GraphicsMode.ADD_EDGE:
+                    self.add_edge(event.scenePos())
+                case GraphicsMode.DELETE_ITEM:
+                    self.delete_item(event.scenePos())
 
     def mouseMoveEvent(self, event):
-        if event.buttons() == Qt.LeftButton and self.active_mode == "Cursor":
+        if event.buttons() == Qt.LeftButton and self.active_mode == GraphicsMode.CURSOR:
             self.move_node(event.scenePos())
 
     def mouseReleaseEvent(self, event):
-        if event.button() == Qt.LeftButton and self.active_mode == "Cursor":
+        if event.button() == Qt.LeftButton and self.active_mode == GraphicsMode.CURSOR:
             self.finish_moving_node()
 
     def get_node_item(self, pos: QPointF) -> QNode | None:

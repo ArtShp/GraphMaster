@@ -2,6 +2,8 @@ from PySide6.QtCore import Qt, QSize, QRect
 from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QMainWindow, QToolBar, QPushButton, QMessageBox
 
+from src.graphics_mode import GraphicsMode
+from src.q_button import QButton
 from src.view import GraphicsView
 
 
@@ -52,40 +54,36 @@ class MainWindow(QMainWindow):
 
     def create_toolbar(self):
         """Create the application's toolbar."""
-        self.toolbar = QToolBar("Modes", self)
+        toolbar = QToolBar("Modes", self)
 
-        self.buttons = [QPushButton(text="Cursor"),
-                        QPushButton(text="Add Node"),
-                        QPushButton(text="Add Edge"),
-                        QPushButton(text="Delete"),
-                        QPushButton(text="Clear Graph")]
+        self.buttons = [cursor_button := QButton("Cursor", GraphicsMode.CURSOR),
+                        QButton("Add Node", GraphicsMode.ADD_NODE),
+                        QButton("Add Edge", GraphicsMode.ADD_EDGE),
+                        QButton("Delete", GraphicsMode.DELETE_ITEM),
+                        clear_button := QPushButton("Clear Graph")]
 
         for button in self.buttons:
             button.setFixedSize(QSize(100, 50))
-            self.toolbar.addWidget(button)
+            toolbar.addWidget(button)
 
         for i in range(len(self.buttons) - 1):
             self.buttons[i].setCheckable(True)
             self.buttons[i].clicked.connect(self.change_mode)
 
-        self.buttons[-1].clicked.connect(self.clear_graph)
+        clear_button.clicked.connect(self.clear_graph)
 
-        self.last_button = self.buttons[0]
-        self.active_mode = self.buttons[0].text()
-        self.view.scene.active_mode = self.active_mode
-        self.buttons[0].setChecked(True)
+        self.view.scene.change_mode(cursor_button.mode)
+        cursor_button.setChecked(True)
 
-        self.addToolBar(Qt.TopToolBarArea, self.toolbar)
+        self.addToolBar(Qt.TopToolBarArea, toolbar)
 
     def change_mode(self):
         """Event handler for changing the mode of working."""
-        self.last_button = self.sender()
-        self.active_mode = self.last_button.text()
-        self.view.scene.active_mode = self.active_mode
-        self.last_button.setChecked(True)
+        self.view.scene.change_mode(self.sender().mode)
+        self.sender().setChecked(True)
 
         for button in self.buttons:
-            if self.last_button != button:
+            if self.sender() != button:
                 button.setChecked(False)
 
     def clear_graph(self):
