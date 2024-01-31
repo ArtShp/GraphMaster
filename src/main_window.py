@@ -113,8 +113,8 @@ class MainWindow(QMainWindow):
         filename, ok = QFileDialog.getSaveFileName(
             self,
             "Save as",
-            "data.txt",
-            "Graph JSON (*.txt)"
+            "data.graph",
+            "Graph JSON (*.graph)"
         )
         if filename:
             path = Path(filename)
@@ -126,7 +126,8 @@ class MainWindow(QMainWindow):
         filename, ok = QFileDialog.getOpenFileName(
             self,
             "Select a file",
-            filter="Graph JSON (*.txt)"
+            "",
+            "Graph JSON (*.graph)"
         )
         if filename:
             path = Path(filename)

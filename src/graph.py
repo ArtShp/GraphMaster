@@ -24,8 +24,8 @@ class Graph:
             while i < len(self.edges):
                 if node in self.edges[i].nodes:
                     self.edges.pop(i)
-                    i -= 1
-                i += 1
+                else:
+                    i += 1
             self.nodes.remove(node)
 
     def delete_edge(self, edge: QEdge):
@@ -37,7 +37,7 @@ class Graph:
                 return node
         return None
 
-    def get_node_id(self, id: int) -> QNode | None:
+    def get_node_by_id(self, id: int) -> QNode | None:
         for node in self.nodes:
             if node.id == id:
                 return node
@@ -97,8 +97,8 @@ class Graph:
             for node in res["nodes"]:
                 self.add_node(QNode(node["x"], node["y"], node["r"], node["name"], node["id"]))
             for edge in res["edges"]:
-                self.add_edge(QEdge(self.get_node_id(edge["id_node_1"]),
-                                    self.get_node_id(edge["id_node_2"]),
+                self.add_edge(QEdge(self.get_node_by_id(edge["id_node_1"]),
+                                    self.get_node_by_id(edge["id_node_2"]),
                                     edge["w"], edge["d"], edge["id"]))
             return True
         except:
