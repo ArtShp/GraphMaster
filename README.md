@@ -44,7 +44,7 @@ The "**File**" menu contains the following buttons:
 2. **Import**. It is used to import a graph saved in JSON format in a .graph file and then display it on the screen. The graph that was there before is completely erased. If the file format is incorrect, the graph will not be created.
 3. **Export**. Exports the graph to a .graph file in JSON format.
 
-## JSON file format:
+## JSON file format
 Files have an extension .graph.
 Data is saved in text mode.
 ```json
@@ -79,10 +79,23 @@ Description:
 ## Example
 Project has an example, that user can import and play with.
 
-## Programmer's description:
-Used module is PySide6. Scene for drawing graph - QGraphicsScene.
-Created own classes for buttons, nodes, edges, graph.
-Class Graph stores all nodes and edges and manages work with them.
+## Programmer's description
+Used module is PySide6.
+
+Program (classes) structure:
+
+App - (QApplication) \
+MainWindow - (QMainWindow) \
+|---- View - (QGraphicsView) \
+  |---- Scene - (QGraphicsScene) \
+|---- Graph - (Graph)
+
+Description:
+- App - application object.
+- MainWindow - application's main window object. Consists of the graph view, mode buttons and file menu.
+- View - object to display the scene.
+- Scene - working area object. There the graph is drawn. All items - QNodes or QEdges, that are described by their position on the screen.
+- Graph - graph object. Stores all nodes, edges and manages work with them. Used for encoding/decoding graph to/from JSON format. Ties edges with their nodes (by id).
 
 ## Roadmap
 - Creation of oriented graphs
