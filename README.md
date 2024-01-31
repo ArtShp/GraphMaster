@@ -41,10 +41,12 @@ Program menu:
 
 The "**File**" menu contains the following buttons:
 1. **Quit**. This button is used to terminate the program.
-2. **Import**. It is used to import a graph saved in JSON format in a text file and then display it on the screen. The graph that was there before is completely erased. If the file format is incorrect, the graph will not be created.
-3. **Export**. Exports the graph to a text file in JSON format.
+2. **Import**. It is used to import a graph saved in JSON format in a .graph file and then display it on the screen. The graph that was there before is completely erased. If the file format is incorrect, the graph will not be created.
+3. **Export**. Exports the graph to a .graph file in JSON format.
 
 ## JSON file format:
+Files have an extension .graph.
+Data is saved in text mode.
 ```json
 {
 	"content_type": "Graph",
